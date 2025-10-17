@@ -53,8 +53,7 @@ public:
         int last_error=0;
         int target=0;
         int actual=0;
-        int max_output = 1000;
-        int min_output = 1000;
+        int max_output = 0;
     } pid_data_t;
 
     pid_data_t pos_pid_data;

@@ -11,7 +11,7 @@
 #include "map"
 #include <array>
 #include <algorithm>
-
+#include "cstdlib"
 using namespace std;
 motor3508 motor0(0);
 motor3508 motor1(1);
@@ -62,12 +62,14 @@ void motor3508::pos_pid_init(float kp, float ki, float kd) {
     pos_pid_data.Kp = kp;
     pos_pid_data.Ki = ki;
     pos_pid_data.Kd = kd;
+    pos_pid_data.max_output = 1000;
 }
 
 void motor3508::spd_pid_init(float kp, float ki, float kd) {
     spd_pid_data.Kp = kp;
     spd_pid_data.Ki = ki;
     spd_pid_data.Kd = kd;
+    pos_pid_data.max_output = 1000;
 }
 
 void motor3508::set_cur(int target) {
@@ -128,8 +130,8 @@ void motor3508::pid_compuate(pid_data_t *pid_data) {
     if (pid_data->output > pid_data->max_output) {
         pid_data->output = pid_data->max_output;
         pid_data->integral = pid_data->integral - pid_data->error;
-    } else if (pid_data->output < pid_data->min_output) {
-        pid_data->output = pid_data->min_output;
+    } else if (pid_data->output < -pid_data->max_output) {
+        pid_data->output = -pid_data->max_output;
         pid_data->integral = pid_data->integral - pid_data->error;
     }
 
