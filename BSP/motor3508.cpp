@@ -54,7 +54,7 @@ void send_3508_data() {
     tx.RTR = CAN_RTR_DATA;
     tx.DLC = 8;
     HAL_CAN_AddTxMessage(&hcan2, &tx,TxData, &TxMailbox);
-    fill(TxData, TxData+8, 0);//清空发送缓存
+    fill_n(TxData, 8, 0);//清空发送缓存
 }
 
 /****motor3508类实现****/
