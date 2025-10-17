@@ -108,14 +108,14 @@ void motor3508::set_single_pos(int target) {
     pos_pid_data.actual=pos;
     pos_pid_data.target = target;
     pid_compuate(&pos_pid_data);
-    set_cur(pos_pid_data.output);
+    set_spd(pos_pid_data.output);
 }
 
 void motor3508::set_pos(int target) {
     pos_pid_data.actual=total_pos;
     pos_pid_data.target = target;
     pid_compuate(&pos_pid_data);
-    set_cur(pos_pid_data.output);
+    set_spd(pos_pid_data.output);
 }
 
 void motor3508::pid_compuate(pid_data_t *pid_data) {
