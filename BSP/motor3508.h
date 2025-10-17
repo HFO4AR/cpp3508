@@ -77,11 +77,9 @@ public:
 
     void set_pos(int target);
 
-    void spd_pid_set_deadband(int deadband);
+private:
 
     void total_pos_updata();
-
-private:
 
     void pid_compuate(pid_data_t *pid_data);
 };
