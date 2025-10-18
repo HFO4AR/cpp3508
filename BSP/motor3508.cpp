@@ -152,6 +152,25 @@ void motor3508::total_pos_updata() {
     total_pos = round * 8192 + pos;
 }
 
+void motor3508::set_spd_max_output(int val) {
+    spd_pid_data.max_output = val;
+}
+
+void motor3508::set_pos_max_output(int val) {
+    pos_pid_data.max_output = val;
+}
+
+void motor3508::set_spd_deadband(int val) {
+    spd_pid_data.deadband = val;
+}
+
+
+void motor3508::set_pos_deadband(int val) {
+    pos_pid_data.deadband = val;
+}
+
+
+
 
 
 // uint32_t TxMailbox;
