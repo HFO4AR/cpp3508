@@ -31,10 +31,11 @@ public:
     int16_t spd=0;
     int16_t cur=0;
     int8_t temp=0;
+    int motor_enable=MOTOR_DISABLE;
 
     //init
     motor3508(const int id) : id(id) {
-        motor_enable=MOTOR_ENABLE;
+        // motor_enable=MOTOR_ENABLE;
 
     }
 
@@ -58,7 +59,6 @@ public:
 
     void set_pos_deadband(int val);
 private:
-    int motor_enable=MOTOR_DISABLE;
     const int id;
 
 

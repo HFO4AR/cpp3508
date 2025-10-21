@@ -32,7 +32,7 @@ motor3508 motor3(3);
 
 motor3508* motor3508_index[4]={&motor0, &motor1, &motor2, &motor3};
 
-int feedback_enable_flag=0;
+
 //can接收函数
 union rx_data_t{
     array<uint8_t,8> input;
@@ -56,27 +56,26 @@ extern "C" void get_3508_data() {
     motor3508_index[motor_id]->spd=RxData.read.spd;
     motor3508_index[motor_id]->temp=RxData.read.temp;
     if (RxData.read.temp) {
-        feedback_enable_flag=1;
+        motor3508_index[motor_id]->motor_enable=MOTOR_ENABLE;
     }
 
 }
 
 //can发送函数
 uint8_t TxData[8];
-void send_3508_data() {
-    if (feedback_enable_flag) {
-        uint32_t TxMailbox;
-        CAN_TxHeaderTypeDef tx;
-        tx.StdId = 0x200;
-        tx.IDE = CAN_ID_STD;
-        tx.RTR = CAN_RTR_DATA;
-        tx.DLC = 8;
-        HAL_CAN_AddTxMessage(&hcan2, &tx,TxData, &TxMailbox);
-        fill_n(TxData, 8, 0);//清空发送缓存
-        feedback_enable_flag=0;
-    }
 
+void send_3508_data() {
+    uint32_t TxMailbox;
+    CAN_TxHeaderTypeDef tx;
+    tx.StdId = 0x200;
+    tx.IDE = CAN_ID_STD;
+    tx.RTR = CAN_RTR_DATA;
+    tx.DLC = 8;
+    HAL_CAN_AddTxMessage(&hcan2, &tx, TxData, &TxMailbox);
+    fill_n(TxData, 8, 0); //清空发送缓存
 }
+
+
 
 /****motor3508类实现****/
 void motor3508::pos_pid_init(float kp, float ki, float kd) {
@@ -94,25 +93,28 @@ void motor3508::spd_pid_init(float kp, float ki, float kd) {
 }
 
 void motor3508::set_cur(int target) {
-    switch (id) {
-        case 0:
-            TxData[0] = (target >> 8) & 0xFF;
-            TxData[1] = target & 0xFF;
-            break;
-        case 1:
-            TxData[2] = (target >> 8) & 0xFF;
-            TxData[3] = target & 0xFF;
-            break;
-        case 2:
-            TxData[4] = (target >> 8) & 0xFF;
-            TxData[5] = target & 0xFF;
-            break;
-        case 3:
-            TxData[6] = (target >> 8) & 0xFF;
-            TxData[7] = target & 0xFF;
-            break;
-        default:
-            break;
+    if (motor_enable) {
+        switch (id) {
+            case 0:
+                TxData[0] = (target >> 8) & 0xFF;
+                TxData[1] = target & 0xFF;
+                break;
+            case 1:
+                TxData[2] = (target >> 8) & 0xFF;
+                TxData[3] = target & 0xFF;
+                break;
+            case 2:
+                TxData[4] = (target >> 8) & 0xFF;
+                TxData[5] = target & 0xFF;
+                break;
+            case 3:
+                TxData[6] = (target >> 8) & 0xFF;
+                TxData[7] = target & 0xFF;
+                break;
+            default:
+                break;
+        }
+        motor_enable=MOTOR_DISABLE;
     }
     total_pos_updata();
     // send_3508_msg();
