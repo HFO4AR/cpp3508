@@ -43,7 +43,7 @@ public:
 
     void spd_pid_init(float kp, float ki, float kd);
 
-    void set_cur(int target);
+    void set_cur(int target);//open loop
 
     void set_spd(int target);
 
@@ -90,6 +90,8 @@ private:
     void total_pos_updata();
 
     void pid_compuate(pid_data_t *pid_data);
+
+    void set_cur_cl(int target);//close loop
 };
 
 extern motor3508 motor0;

@@ -92,33 +92,30 @@ void motor3508::spd_pid_init(float kp, float ki, float kd) {
     pos_pid_data.max_output = 1000;
 }
 
+
+
 void motor3508::set_cur(int target) {
-    if (motor_enable) {
-        switch (id) {
-            case 0:
-                TxData[0] = (target >> 8) & 0xFF;
-                TxData[1] = target & 0xFF;
-                break;
-            case 1:
-                TxData[2] = (target >> 8) & 0xFF;
-                TxData[3] = target & 0xFF;
-                break;
-            case 2:
-                TxData[4] = (target >> 8) & 0xFF;
-                TxData[5] = target & 0xFF;
-                break;
-            case 3:
-                TxData[6] = (target >> 8) & 0xFF;
-                TxData[7] = target & 0xFF;
-                break;
-            default:
-                break;
-        }
-        motor_enable=MOTOR_DISABLE;
+    switch (id) {
+        case 0:
+            TxData[0] = (target >> 8) & 0xFF;
+            TxData[1] = target & 0xFF;
+            break;
+        case 1:
+            TxData[2] = (target >> 8) & 0xFF;
+            TxData[3] = target & 0xFF;
+            break;
+        case 2:
+            TxData[4] = (target >> 8) & 0xFF;
+            TxData[5] = target & 0xFF;
+            break;
+        case 3:
+            TxData[6] = (target >> 8) & 0xFF;
+            TxData[7] = target & 0xFF;
+            break;
+        default:
+            break;
     }
     total_pos_updata();
-    // send_3508_msg();
-
 }
 
 
@@ -126,7 +123,7 @@ void motor3508::set_spd(int target) {
     spd_pid_data.actual=spd;
     spd_pid_data.target = target;
     pid_compuate(&spd_pid_data);
-    set_cur(spd_pid_data.output);
+    set_cur_cl(spd_pid_data.output);
 }
 
 void motor3508::set_single_pos(int target) {
@@ -192,7 +189,32 @@ void motor3508::set_pos_deadband(int val) {
     pos_pid_data.deadband = val;
 }
 
-
+void motor3508::set_cur_cl(int target) {
+    if (motor_enable) {
+        switch (id) {
+            case 0:
+                TxData[0] = (target >> 8) & 0xFF;
+                TxData[1] = target & 0xFF;
+                break;
+            case 1:
+                TxData[2] = (target >> 8) & 0xFF;
+                TxData[3] = target & 0xFF;
+                break;
+            case 2:
+                TxData[4] = (target >> 8) & 0xFF;
+                TxData[5] = target & 0xFF;
+                break;
+            case 3:
+                TxData[6] = (target >> 8) & 0xFF;
+                TxData[7] = target & 0xFF;
+                break;
+            default:
+                break;
+        }
+        motor_enable = MOTOR_DISABLE;
+    }
+    total_pos_updata();
+}
 
 
 
