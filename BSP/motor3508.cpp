@@ -1,7 +1,18 @@
 //
 // Created by nyuki on 2025/10/17.
 //
-
+/***
+ *使用说明：
+ *调用set_cur方法设置电机电流
+ *调用set_pos方法设置电机位置
+ *调用set_spd方法设置电机速度
+ *
+ *调用set_spd和set_pos方法之前必须先调用pos_pid_init和spd_pid_init方法进行PID参数初始化，否则PID输出为0
+ *
+ *调用完set_cur、set_pos、set_spd方法之后必须调用send_3508_data方法发送数据
+ *
+ *
+ ***/
 #include "motor3508.h"
 
 #include "can.h"
