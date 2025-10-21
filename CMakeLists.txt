@@ -39,7 +39,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         TASK/motorTask.cpp
         TASK/motorTask.h
         BSP/motor3508.cpp
-        BSP/motor3508.h)
+        BSP/motor3508.h
+        BSP/motor3508.cpp)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)

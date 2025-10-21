@@ -16,7 +16,7 @@ extern "C" void motor_task(void const * argument){
         motor0.set_pos_max_output(2000);
         motor0.set_spd_max_output(20000);
         // motor0.set_pos(100);
-        motor0.set_spd(3000);
+        motor0.set_spd(1000);
         send_3508_data();
         osDelay(1);
     }

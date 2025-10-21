@@ -21,6 +21,7 @@ motor3508 motor3(3);
 
 motor3508* motor3508_index[4]={&motor0, &motor1, &motor2, &motor3};
 
+int feedback_enable_flag=0;
 //can接收函数
 union rx_data_t{
     array<uint8_t,8> input;
@@ -38,23 +39,32 @@ extern "C" void get_3508_data() {
     CAN_RxHeaderTypeDef RxHeader;
     HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData.input.data());
     reverse(RxData.input.begin(), RxData.input.end());
-    motor3508_index[RxHeader.StdId-0x200-1]->pos=RxData.read.pos;
-    motor3508_index[RxHeader.StdId-0x200-1]->cur=RxData.read.cur;
-    motor3508_index[RxHeader.StdId-0x200-1]->spd=RxData.read.spd;
-    motor3508_index[RxHeader.StdId-0x200-1]->temp=(RxData.read.temp);
+    int motor_id=RxHeader.StdId-0x200-1;
+    motor3508_index[motor_id]->pos=RxData.read.pos;
+    motor3508_index[motor_id]->cur=RxData.read.cur;
+    motor3508_index[motor_id]->spd=RxData.read.spd;
+    motor3508_index[motor_id]->temp=RxData.read.temp;
+    if (RxData.read.temp) {
+        feedback_enable_flag=1;
+    }
+
 }
 
 //can发送函数
 uint8_t TxData[8];
 void send_3508_data() {
-    uint32_t TxMailbox;
-    CAN_TxHeaderTypeDef tx;
-    tx.StdId = 0x200;
-    tx.IDE = CAN_ID_STD;
-    tx.RTR = CAN_RTR_DATA;
-    tx.DLC = 8;
-    HAL_CAN_AddTxMessage(&hcan2, &tx,TxData, &TxMailbox);
-    fill_n(TxData, 8, 0);//清空发送缓存
+    if (feedback_enable_flag) {
+        uint32_t TxMailbox;
+        CAN_TxHeaderTypeDef tx;
+        tx.StdId = 0x200;
+        tx.IDE = CAN_ID_STD;
+        tx.RTR = CAN_RTR_DATA;
+        tx.DLC = 8;
+        HAL_CAN_AddTxMessage(&hcan2, &tx,TxData, &TxMailbox);
+        fill_n(TxData, 8, 0);//清空发送缓存
+        feedback_enable_flag=0;
+    }
+
 }
 
 /****motor3508类实现****/
