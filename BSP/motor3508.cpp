@@ -77,7 +77,40 @@ void send_3508_data() {
 
 
 /****motor3508类实现****/
-void motor3508::pos_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
+// 实现motor类的虚函数
+void motor::set_cur(int target) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_spd(int target) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_single_pos(int target) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_pos(int target) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_spd_max_output(int val) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_pos_max_output(int val) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_spd_deadband(int val) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void motor::set_pos_deadband(int val) {
+    // 基类的默认实现，可以为空或者添加通用逻辑
+}
+
+void pid::pos_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
     pos_pid_data.Kaw = kaw;
     pos_pid_data.Kp = kp;
     pos_pid_data.Ki = ki;
@@ -85,7 +118,7 @@ void motor3508::pos_pid_init(float kp, float ki, float kd, float kaw,int max_out
     pos_pid_data.max_output = max_output;
 }
 
-void motor3508::spd_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
+void pid::spd_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
     spd_pid_data.Kaw = kaw;
     spd_pid_data.Kp = kp;
     spd_pid_data.Ki = ki;

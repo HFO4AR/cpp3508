@@ -24,53 +24,40 @@ extern "C" {
 #define MOTOR_DISABLE 0
 
 void send_3508_data();
-
-class motor3508 {
+class motor {
 public:
+    motor (const int id):id(id) {
+    }
     int16_t pos=0;
     int16_t spd=0;
     int16_t cur=0;
     int8_t temp=0;
     int motor_enable=MOTOR_DISABLE;
+    virtual void set_cur(int target);//open loop
 
-    //init
-    motor3508(const int id) : id(id) {
-        // motor_enable=MOTOR_ENABLE;
+    virtual void set_spd(int target);
 
-    }
+    virtual void set_single_pos(int target);
 
-    void pos_pid_init(float kp, float ki, float kd) {
-        pos_pid_init(kp,ki,kd,kp/ki);
-    }
-    void pos_pid_init(float kp, float ki, float kd, float kaw,int max_output=1000);
+    virtual void set_pos(int target);
 
-    void spd_pid_init(float kp, float ki, float kd) {
-        spd_pid_init(kp,ki,kd,kp/ki);
-    }
-    void spd_pid_init(float kp, float ki, float kd, float kaw,int max_output=1000);
+    virtual void set_spd_max_output(int val);
 
-    void set_cur(int target);//open loop
+    virtual void set_pos_max_output(int val);
 
-    void set_spd(int target);
+    virtual void set_spd_deadband(int val);
 
-    void set_single_pos(int target);
-
-    void set_pos(int target);
-
-    void set_spd_max_output(int val);
-
-    void set_pos_max_output(int val);
-
-    void set_spd_deadband(int val);
-
-    void set_pos_deadband(int val);
-
-    void set_Kaw(int val);
+    virtual void set_pos_deadband(int val);
 protected:
     const int id;
     int32_t total_pos=0;
     int16_t last_pos=0;
     int16_t round=0;
+};
+
+class pid {
+protected:
+    pid () = default;
     typedef struct {
         float Kp;
         float Ki;
@@ -91,7 +78,45 @@ protected:
 
     pid_data_t pos_pid_data;
     pid_data_t spd_pid_data;
+public:
+    void pos_pid_init(float kp, float ki, float kd) {
+        pos_pid_init(kp,ki,kd,kp/ki);
+    }
+    void pos_pid_init(float kp, float ki, float kd, float kaw,int max_output=1000);
 
+    void spd_pid_init(float kp, float ki, float kd) {
+        spd_pid_init(kp,ki,kd,kp/ki);
+    }
+    void spd_pid_init(float kp, float ki, float kd, float kaw,int max_output=1000);
+
+    void set_Kaw(int val);
+};
+
+
+
+class motor3508 :public pid,public motor{
+public:
+    motor3508(const int id) : pid(), motor(id) {
+        // motor_enable=MOTOR_ENABLE;
+    }
+
+    void set_cur(int target);//open loop
+
+    void set_spd(int target);
+
+    void set_single_pos(int target);
+
+    void set_pos(int target);
+
+    void set_spd_max_output(int val);
+
+    void set_pos_max_output(int val);
+
+    void set_spd_deadband(int val);
+
+    void set_pos_deadband(int val);
+
+protected:
     void total_pos_updata();
 
     void pid_compuate(pid_data_t *pid_data);
