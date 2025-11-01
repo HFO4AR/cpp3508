@@ -38,9 +38,13 @@ add_executable(${CMAKE_PROJECT_NAME}
         BSP/can_bsp.h
         TASK/motorTask.cpp
         TASK/motorTask.h
-        BSP/motor3508.cpp
-        BSP/motor3508.h
-        BSP/motor3508.cpp)
+        motorPack/motor3508.cpp
+        motorPack/motor3508.h
+        motorPack/motor3508.cpp
+        motorPack/pid.cpp
+        motorPack/pid.h
+        motorPack/motor.cpp
+        motorPack/motor.h)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
@@ -59,6 +63,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_PROJECT_NAME} TASK
         ${CMAKE_PROJECT_NAME} BSP
+        ${CMAKE_PROJECT_NAME} motorPack
     # Add user defined include paths
 )
 

@@ -5,8 +5,11 @@
 #include "motorTask.h"
 #include "can_bsp.h"
 #include "cmsis_os.h"
-#include "motor3508.h"
-
+#include "../motorPack/motor3508.h"
+extern motor3508 motor0;
+extern motor3508 motor1;
+extern motor3508 motor2;
+extern motor3508 motor3;
 extern "C" void motor_task(void const * argument){
     motor0.spd_pid_init(9.0,0,0);
     motor0.pos_pid_init(0.5,0,0);

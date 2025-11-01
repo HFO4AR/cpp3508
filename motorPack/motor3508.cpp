@@ -29,9 +29,7 @@ motor3508 motor1(1);
 motor3508 motor2(2);
 motor3508 motor3(3);
 
-
 motor3508 *motor3508_index[4] = {&motor0, &motor1, &motor2, &motor3};
-
 
 //can接收函数
 union rx_data_t {
@@ -76,56 +74,6 @@ void send_3508_data() {
 }
 
 
-/****motor3508类实现****/
-// 实现motor类的虚函数
-void motor::set_cur(int target) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_spd(int target) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_single_pos(int target) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_pos(int target) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_spd_max_output(int val) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_pos_max_output(int val) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_spd_deadband(int val) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void motor::set_pos_deadband(int val) {
-    // 基类的默认实现，可以为空或者添加通用逻辑
-}
-
-void pid::pos_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
-    pos_pid_data.Kaw = kaw;
-    pos_pid_data.Kp = kp;
-    pos_pid_data.Ki = ki;
-    pos_pid_data.Kd = kd;
-    pos_pid_data.max_output = max_output;
-}
-
-void pid::spd_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
-    spd_pid_data.Kaw = kaw;
-    spd_pid_data.Kp = kp;
-    spd_pid_data.Ki = ki;
-    spd_pid_data.Kd = kd;
-    pos_pid_data.max_output = max_output;
-}
-
 
 void motor3508::set_cur(int target) {
     switch (id) {
@@ -152,51 +100,6 @@ void motor3508::set_cur(int target) {
 }
 
 
-void motor3508::set_spd(int target) {
-    spd_pid_data.actual = spd;
-    spd_pid_data.target = target;
-    pid_compuate(&spd_pid_data);
-    set_cur_cl(spd_pid_data.output);
-}
-
-void motor3508::set_single_pos(int target) {
-    pos_pid_data.actual = pos;
-    pos_pid_data.target = target;
-    pid_compuate(&pos_pid_data);
-    set_spd(pos_pid_data.output);
-}
-
-void motor3508::set_pos(int target) {
-    pos_pid_data.actual = total_pos;
-    pos_pid_data.target = target;
-    pid_compuate(&pos_pid_data);
-    set_spd(pos_pid_data.output);
-}
-
-void motor3508::pid_compuate(pid_data_t *pid_data) {
-    pid_data->error = pid_data->target - pid_data->actual;
-    pid_data->Kp_output = pid_data->Kp * pid_data->error;
-    pid_data->Kd_output = pid_data->Kd * (pid_data->error - pid_data->last_error);
-    pid_data->Ki_output += pid_data->Ki * pid_data->error;
-
-    //计算未饱和输出（理论输出）
-    float unsat_output = pid_data->Kp_output + pid_data->Kd_output + pid_data->Ki_output;
-    float sat_output = unsat_output;
-    //输出限幅
-    if (unsat_output > pid_data->max_output) {
-        sat_output = pid_data->max_output;
-    } else if (unsat_output < -pid_data->max_output) {
-        sat_output = -pid_data->max_output;
-    }
-    pid_data->Ki_output += pid_data->Kaw * (sat_output - unsat_output);
-
-    pid_data->output = sat_output;
-
-    if (abs(pid_data->error) < abs(pid_data->deadband)) {
-        pid_data->output = 0;
-    }
-    pid_data->last_error = pid_data->error;
-}
 
 void motor3508::total_pos_updata() {
     if (pos - last_pos > 4096) {
@@ -208,22 +111,7 @@ void motor3508::total_pos_updata() {
     total_pos = round * 8192 + pos;
 }
 
-void motor3508::set_spd_max_output(int val) {
-    spd_pid_data.max_output = val;
-}
 
-void motor3508::set_pos_max_output(int val) {
-    pos_pid_data.max_output = val;
-}
-
-void motor3508::set_spd_deadband(int val) {
-    spd_pid_data.deadband = val;
-}
-
-
-void motor3508::set_pos_deadband(int val) {
-    pos_pid_data.deadband = val;
-}
 
 void motor3508::set_cur_cl(int target) {
     if (motor_enable) {

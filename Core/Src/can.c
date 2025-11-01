@@ -23,7 +23,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "can_bsp.h"
-#include "motor3508.h"
+#include "../../motorPack/motor3508.h"
 /* USER CODE END 0 */
 
 CAN_HandleTypeDef hcan2;
