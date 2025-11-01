@@ -30,19 +30,20 @@ motor3508 motor2(2);
 motor3508 motor3(3);
 
 
-motor3508* motor3508_index[4]={&motor0, &motor1, &motor2, &motor3};
+motor3508 *motor3508_index[4] = {&motor0, &motor1, &motor2, &motor3};
 
 
 //can接收函数
-union rx_data_t{
-    array<uint8_t,8> input;
-    struct{
-        int8_t null_data=0;
-        int8_t temp=0;
-        int16_t cur=0;
-        int16_t spd=0;
-        int16_t pos=0;
-    }read;
+union rx_data_t {
+    array<uint8_t, 8> input;
+
+    struct {
+        int8_t null_data = 0;
+        int8_t temp = 0;
+        int16_t cur = 0;
+        int16_t spd = 0;
+        int16_t pos = 0;
+    } read;
 };
 
 extern "C" void get_3508_data() {
@@ -50,15 +51,14 @@ extern "C" void get_3508_data() {
     CAN_RxHeaderTypeDef RxHeader;
     HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData.input.data());
     reverse(RxData.input.begin(), RxData.input.end());
-    int motor_id=RxHeader.StdId-0x200-1;
-    motor3508_index[motor_id]->pos=RxData.read.pos;
-    motor3508_index[motor_id]->cur=RxData.read.cur;
-    motor3508_index[motor_id]->spd=RxData.read.spd;
-    motor3508_index[motor_id]->temp=RxData.read.temp;
+    int motor_id = RxHeader.StdId - 0x200 - 1;
+    motor3508_index[motor_id]->pos = RxData.read.pos;
+    motor3508_index[motor_id]->cur = RxData.read.cur;
+    motor3508_index[motor_id]->spd = RxData.read.spd;
+    motor3508_index[motor_id]->temp = RxData.read.temp;
     if (RxData.read.temp) {
-        motor3508_index[motor_id]->motor_enable=MOTOR_ENABLE;
+        motor3508_index[motor_id]->motor_enable = MOTOR_ENABLE;
     }
-
 }
 
 //can发送函数
@@ -76,22 +76,22 @@ void send_3508_data() {
 }
 
 
-
 /****motor3508类实现****/
-void motor3508::pos_pid_init(float kp, float ki, float kd) {
+void motor3508::pos_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
+    pos_pid_data.Kaw = kaw;
     pos_pid_data.Kp = kp;
     pos_pid_data.Ki = ki;
     pos_pid_data.Kd = kd;
-    pos_pid_data.max_output = 1000;
+    pos_pid_data.max_output = max_output;
 }
 
-void motor3508::spd_pid_init(float kp, float ki, float kd) {
+void motor3508::spd_pid_init(float kp, float ki, float kd, float kaw,int max_output) {
+    spd_pid_data.Kaw = kaw;
     spd_pid_data.Kp = kp;
     spd_pid_data.Ki = ki;
     spd_pid_data.Kd = kd;
-    pos_pid_data.max_output = 1000;
+    pos_pid_data.max_output = max_output;
 }
-
 
 
 void motor3508::set_cur(int target) {
@@ -120,21 +120,21 @@ void motor3508::set_cur(int target) {
 
 
 void motor3508::set_spd(int target) {
-    spd_pid_data.actual=spd;
+    spd_pid_data.actual = spd;
     spd_pid_data.target = target;
     pid_compuate(&spd_pid_data);
     set_cur_cl(spd_pid_data.output);
 }
 
 void motor3508::set_single_pos(int target) {
-    pos_pid_data.actual=pos;
+    pos_pid_data.actual = pos;
     pos_pid_data.target = target;
     pid_compuate(&pos_pid_data);
     set_spd(pos_pid_data.output);
 }
 
 void motor3508::set_pos(int target) {
-    pos_pid_data.actual=total_pos;
+    pos_pid_data.actual = total_pos;
     pos_pid_data.target = target;
     pid_compuate(&pos_pid_data);
     set_spd(pos_pid_data.output);
@@ -143,29 +143,32 @@ void motor3508::set_pos(int target) {
 void motor3508::pid_compuate(pid_data_t *pid_data) {
     pid_data->error = pid_data->target - pid_data->actual;
     pid_data->Kp_output = pid_data->Kp * pid_data->error;
-    pid_data->integral += pid_data->error;
-    pid_data->Ki_output += pid_data->Ki * pid_data->integral;
     pid_data->Kd_output = pid_data->Kd * (pid_data->error - pid_data->last_error);
+    pid_data->Ki_output += pid_data->Ki * pid_data->error;
 
-    if (pid_data->output > pid_data->max_output) {
-        pid_data->output = pid_data->max_output;
-        pid_data->integral = pid_data->integral - pid_data->error;
-    } else if (pid_data->output < -pid_data->max_output) {
-        pid_data->output = -pid_data->max_output;
-        pid_data->integral = pid_data->integral - pid_data->error;
+    //计算未饱和输出（理论输出）
+    float unsat_output = pid_data->Kp_output + pid_data->Kd_output + pid_data->Ki_output;
+    float sat_output = unsat_output;
+    //输出限幅
+    if (unsat_output > pid_data->max_output) {
+        sat_output = pid_data->max_output;
+    } else if (unsat_output < -pid_data->max_output) {
+        sat_output = -pid_data->max_output;
     }
+    pid_data->Ki_output += pid_data->Kaw * (sat_output - unsat_output);
+
+    pid_data->output = sat_output;
 
     if (abs(pid_data->error) < abs(pid_data->deadband)) {
         pid_data->output = 0;
     }
-
-    pid_data->output = pid_data->Kp_output + pid_data->Ki_output + pid_data->Kd_output;
+    pid_data->last_error = pid_data->error;
 }
 
 void motor3508::total_pos_updata() {
     if (pos - last_pos > 4096) {
         round--;
-    } else if (pos-last_pos < -4096) {
+    } else if (pos - last_pos < -4096) {
         round++;
     }
     last_pos = pos;
@@ -215,7 +218,6 @@ void motor3508::set_cur_cl(int target) {
     }
     total_pos_updata();
 }
-
 
 
 // uint32_t TxMailbox;

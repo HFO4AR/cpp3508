@@ -39,9 +39,15 @@ public:
 
     }
 
-    void pos_pid_init(float kp, float ki, float kd);
+    void pos_pid_init(float kp, float ki, float kd) {
+        pos_pid_init(kp,ki,kd,kp/ki);
+    }
+    void pos_pid_init(float kp, float ki, float kd, float kaw,int max_output=1000);
 
-    void spd_pid_init(float kp, float ki, float kd);
+    void spd_pid_init(float kp, float ki, float kd) {
+        spd_pid_init(kp,ki,kd,kp/ki);
+    }
+    void spd_pid_init(float kp, float ki, float kd, float kaw,int max_output=1000);
 
     void set_cur(int target);//open loop
 
@@ -58,30 +64,29 @@ public:
     void set_spd_deadband(int val);
 
     void set_pos_deadband(int val);
-private:
+
+    void set_Kaw(int val);
+protected:
     const int id;
-
-
     int32_t total_pos=0;
     int16_t last_pos=0;
     int16_t round=0;
-
     typedef struct {
-        float Kp = 0;
-        float Ki = 0;
-        float Kd = 0;
-        int last_pos = 0;
-        int Kp_output = 0;
-        int Ki_output = 0;
-        int Kd_output = 0;
-        int output = 0;
-        int deadband = 0;
-        int integral=0;
-        int error=0;
-        int last_error=0;
-        int target=0;
-        int actual=0;
-        int max_output = 0;
+        float Kp;
+        float Ki;
+        float Kd;
+        float Kaw;//抗饱和反馈系数（建议：Kaw ≈ Ki/Kp 或 Ki 的 0.5~1倍）
+        int last_pos;
+        int Kp_output;
+        int Ki_output;
+        int Kd_output;
+        int output;
+        int deadband;
+        int error;
+        int last_error;
+        int target;
+        int actual;
+        int max_output;
     } pid_data_t;
 
     pid_data_t pos_pid_data;
