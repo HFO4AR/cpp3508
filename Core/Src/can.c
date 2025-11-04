@@ -23,7 +23,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "can_bsp.h"
-#include "../../motorPack/motor3508.h"
+#include "../../motorPack/Dji_Rm3508.h"
 /* USER CODE END 0 */
 
 CAN_HandleTypeDef hcan2;
@@ -125,10 +125,5 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-  if (hcan->Instance == CAN2) {
-    get_3508_data();
-  }
-}
 
 /* USER CODE END 1 */

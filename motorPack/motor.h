@@ -4,15 +4,14 @@
 
 #ifndef CPP3508_MOTOR_H
 #define CPP3508_MOTOR_H
-#include "stm32f4xx_hal.h"
+#include "main.h"
 #include "pid.h"
 #define MOTOR_ENABLE 1
 #define MOTOR_DISABLE 0
 #ifdef __cplusplus
 class Motor {
 public:
-    Motor (const int id):id(id) {
-    }
+    Motor (const int id):id(id) {}
     int16_t pos;
     int16_t spd;
     int16_t cur;
@@ -26,7 +25,7 @@ public:
 
     virtual void pos_pid_init(float kp, float ki, float kd, float kaw=-1.0f,int max_output=1000);
 
-    virtual void set_cur(int target);//open loop
+    virtual void set_cur_ol(int target);//open loop
 
     virtual void set_spd(int target);
 
@@ -42,7 +41,8 @@ public:
 
     virtual void set_pos_deadband(int val);
 protected:
-    virtual void set_cur_cl(int target);//close loop
+    virtual void total_pos_updata();
+    virtual void set_cur(int target);//close loop
     const int id;
     int32_t total_pos=0;
     int16_t last_pos=0;

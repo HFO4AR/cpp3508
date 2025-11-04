@@ -6,15 +6,10 @@
 #define CPP3508_CAN_BSP_H
 #include "can.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void can_filter_init(void);
 
-#ifdef __cplusplus
-}
-#endif
+
 
 
 #endif //CPP3508_CAN_BSP_H

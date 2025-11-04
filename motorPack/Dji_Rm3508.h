@@ -4,14 +4,14 @@
 
 #ifndef CPP3508_MOTOR3508_H
 #define CPP3508_MOTOR3508_H
-#include <sys/_stdint.h>
+
 #include "motor.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    void get_3508_data();
+    void get_rm3508_data();
 
 #ifdef __cplusplus
 }
@@ -19,17 +19,16 @@ extern "C" {
 
 #ifdef __cplusplus
 
-void send_3508_data();
-
-class motor3508 :public Motor{
+# define DISABLE 0
+# define ENABLE 1
+class Dji_Rm3508 :public Motor{
 public:
-    motor3508(const int id) :  Motor(id){}
-    void set_cur(int target);//open loop
-protected:
-    void set_cur_cl(int target);
-
-    void total_pos_updata();
-
+    Dji_Rm3508(const int id) :  Motor(id){}
+    static void send_data();
+    void set_cur_ol(int target);//open loop
+    void enable_sync_seed();
+private:
+    int sync_seed_mode=DISABLE;
 };
 
 

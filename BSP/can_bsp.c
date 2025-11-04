@@ -3,8 +3,9 @@
 //
 
 #include "can_bsp.h"
-
-extern "C" void can_filter_init(void)
+#include "DM_S3519.h"
+#include "Dji_Rm3508.h"
+void can_filter_init(void)
 {
     CAN_FilterTypeDef can_filter_st;
     can_filter_st.FilterActivation = ENABLE;
@@ -27,3 +28,6 @@ extern "C" void can_filter_init(void)
     HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    get_dm3519_data();
+}

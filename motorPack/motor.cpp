@@ -7,7 +7,7 @@ void Motor::set_spd(int target) {
     spd_pid.data.actual = spd;
     spd_pid.data.target = target;
     spd_pid.compuate();
-    set_cur_cl(spd_pid.data.output);
+    set_cur(spd_pid.data.output);
 }
 
 void Motor::set_single_pos(int target) {
@@ -55,10 +55,22 @@ void Motor::set_spd_deadband(int val) {
 void Motor::set_pos_deadband(int val) {
     pos_pid.data.deadband = val;
 }
-void Motor::set_cur(int target) {
+void Motor::set_cur_ol(int target) {
 
 }
 
-void Motor::set_cur_cl(int target) {
-
+void Motor::set_cur(int target) {
+    if (motor_enable) {
+        set_cur_ol(target);
+    }
+    motor_enable = MOTOR_DISABLE;
+}
+void Motor::total_pos_updata() {
+    if (pos - last_pos > 4096) {
+        round--;
+    } else if (pos - last_pos < -4096) {
+        round++;
+    }
+    last_pos = pos;
+    total_pos = round * 8192 + pos;
 }

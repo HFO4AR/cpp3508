@@ -34,17 +34,19 @@ enable_language(C ASM CXX)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
-        BSP/can_bsp.cpp
+        BSP/can_bsp.c
         BSP/can_bsp.h
         TASK/motorTask.cpp
         TASK/motorTask.h
-        motorPack/motor3508.cpp
-        motorPack/motor3508.h
-        motorPack/motor3508.cpp
+        motorPack/dji_rm3508.cpp
+        motorPack/dji_rm3508.h
+        motorPack/dji_rm3508.cpp
         motorPack/pid.cpp
         motorPack/pid.h
         motorPack/motor.cpp
-        motorPack/motor.h)
+        motorPack/motor.h
+        motorPack/DM_S3519.cpp
+        motorPack/DM_S3519.h)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
