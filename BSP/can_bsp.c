@@ -29,5 +29,5 @@ void can_filter_init(void)
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-    get_dm3519_data();
+    // get_dm3519_data();
 }

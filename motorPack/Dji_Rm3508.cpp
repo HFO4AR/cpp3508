@@ -29,6 +29,7 @@ Dji_Rm3508 motor1(1);
 Dji_Rm3508 motor2(2);
 Dji_Rm3508 motor3(3);
 
+
 Dji_Rm3508 *motor3508_index[4] = {&motor0, &motor1, &motor2, &motor3};
 
 //can接收函数
@@ -65,7 +66,6 @@ extern "C" void get_rm3508_data() {
 
 uint8_t TxData[8];
 void Dji_Rm3508::send_data() {
-
     uint32_t TxMailbox;
     CAN_TxHeaderTypeDef tx;
     tx.StdId = 0x200;
